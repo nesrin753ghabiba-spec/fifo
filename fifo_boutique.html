@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>FIFO — أزياء نسائية</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css" />
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Cairo:wght@300;400;500;600&family=Inter:wght@300;400;500&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--blush:#f7ede8;--mauve:#c9a89a;--deep:#3a2820;--cream:#fdf8f5;--gold:#b8925a;--border:#e8d5ce;--wa:#25D366;--red:#c0392b}
+html,body{height:100%}
+body{background:var(--cream);color:var(--deep);font-size:14px;overflow-x:hidden}
+body.rtl{font-family:'Cairo',sans-serif;direction:rtl}
+body.ltr{font-family:'Inter',sans-serif;direction:ltr}
+#view-list{display:block}
+#view-detail{display:none}
+.lang-bar{background:#fff;border-bottom:.5px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:8px 14px;gap:8px;flex-wrap:wrap;position:sticky;top:0;z-index:50}
+.lang-btns{display:flex;gap:5px}
+.lbtn{background:transparent;border:.5px solid var(--border);border-radius:20px;padding:4px 12px;font-size:11px;cursor:pointer;color:var(--deep);transition:all .15s}
+.lbtn.active{background:var(--deep);color:#f0e4dc;border-color:var(--deep)}
+.right-bar{display:flex;gap:8px;align-items:center}
+.cart-btn{background:transparent;border:.5px solid var(--border);border-radius:20px;padding:4px 12px;font-size:11px;cursor:pointer;color:var(--deep);display:flex;align-items:center;gap:5px;transition:all .15s}
+.cart-btn:hover{background:var(--blush)}
+.cart-badge{background:var(--gold);color:#fff;font-size:9px;border-radius:50%;width:16px;height:16px;display:inline-flex;align-items:center;justify-content:center;font-weight:500}
+.admin-btn{background:transparent;border:.5px solid var(--mauve);border-radius:20px;padding:4px 12px;font-size:11px;cursor:pointer;color:var(--mauve);display:flex;align-items:center;gap:4px;transition:all .15s}
+.admin-btn:hover{background:var(--blush)}
+.admin-btn.on{background:var(--deep);color:var(--gold);border-color:var(--deep)}
+.admin-strip{background:rgba(184,146,90,.12);border-bottom:1px solid rgba(184,146,90,.3);padding:5px 14px;font-size:11px;color:var(--gold);text-align:center;display:none}
+.admin-strip.show{display:block}
+.page-wrap{display:flex}
+.main-content{flex:1;min-width:0}
+.side-cart{width:300px;min-width:300px;background:#fff;border-left:.5px solid var(--border);display:none;flex-direction:column;position:sticky;top:50px;max-height:calc(100vh - 50px);overflow-y:auto}
+body.rtl .side-cart{border-left:none;border-right:.5px solid var(--border)}
+.side-cart.open{display:flex}
+.hero{background:var(--blush);padding:2rem 2rem 1.4rem;text-align:center;border-bottom:1px solid var(--border)}
+.brand{font-family:'Cormorant Garamond',serif;font-size:50px;font-weight:300;letter-spacing:.18em;color:var(--deep);line-height:1}
+.tagline{font-size:10px;letter-spacing:.25em;color:var(--mauve);text-transform:uppercase;margin-top:6px}
+.sub{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:15px;color:var(--gold);margin-top:6px;font-weight:300}
+.pay-bar{background:var(--deep);color:#f0e4dc;padding:8px 1rem;font-size:10px;letter-spacing:.08em;display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap}
+.pay-bar span{display:flex;align-items:center;gap:4px}
+.pay-bar i{color:var(--gold);font-size:13px}
+.toolbar{display:flex;gap:8px;padding:12px 14px 0;flex-wrap:wrap;align-items:center}
+.search-wrap{flex:1;min-width:120px;position:relative}
+.search-wrap i{position:absolute;top:50%;transform:translateY(-50%);color:var(--mauve);font-size:14px;pointer-events:none}
+body.rtl .search-wrap i{right:10px}
+body.ltr .search-wrap i{left:10px}
+.search-inp{width:100%;border:.5px solid var(--border);border-radius:20px;font-size:12px;background:var(--cream);color:var(--deep);outline:none}
+body.rtl .search-inp{padding:7px 30px 7px 12px}
+body.ltr .search-inp{padding:7px 12px 7px 30px}
+.search-inp:focus{border-color:var(--gold)}
+.filter-btns{display:flex;gap:4px;flex-wrap:wrap}
+.fbtn{background:transparent;border:.5px solid var(--border);border-radius:20px;padding:4px 10px;font-size:11px;cursor:pointer;color:var(--deep);transition:all .15s}
+.fbtn.active{background:var(--gold);color:#fff;border-color:var(--gold)}
+.sort-sel{border:.5px solid var(--border);border-radius:20px;padding:5px 10px;font-size:11px;background:var(--cream);color:var(--deep);outline:none;cursor:pointer}
+.discount-bar{padding:10px 14px 0;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.disc-title{font-size:11px;color:var(--mauve)}
+.disc-tags{display:flex;gap:6px;flex-wrap:wrap}
+.disc-tag{background:var(--blush);border:.5px solid var(--border);border-radius:20px;padding:4px 10px;font-size:11px;cursor:pointer;color:var(--deep);transition:all .15s;display:flex;align-items:center;gap:4px}
+.disc-tag.active{background:#fff3cd;border-color:var(--gold)}
+.disc-tag i{font-size:12px;color:var(--gold)}
+.sec-head{padding:1.2rem 1.4rem 0;text-align:center}
+.sec-title{font-family:'Cormorant Garamond',serif;font-size:23px;font-weight:400;color:var(--deep);letter-spacing:.06em}
+.sec-rule{width:34px;height:1px;background:var(--gold);margin:5px auto 1.2rem}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px;padding:0 14px 1.5rem}
+.no-results{text-align:center;padding:2rem;color:var(--mauve);font-size:13px;grid-column:1/-1}
+.card{background:#fff;border:.5px solid var(--border);border-radius:12px;overflow:hidden;transition:transform .2s;cursor:pointer}
+.card:hover{transform:translateY(-2px)}
+.card-media{background:var(--blush);height:185px;position:relative;overflow:hidden;border-bottom:.5px solid var(--border)}
+.card-media input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;z-index:3}
+.card-thumb{width:100%;height:100%;object-fit:cover;position:absolute;inset:0;display:none}
+.uhint{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;height:100%;pointer-events:none}
+.uhint i{font-size:22px;color:var(--mauve)}
+.uhint p{font-size:10px;color:var(--mauve);text-align:center}
+.cbadge{position:absolute;top:8px;font-size:9px;padding:2px 7px;border-radius:20px;z-index:2}
+body.rtl .cbadge{left:8px}
+body.ltr .cbadge{right:8px}
+.cbadge.sale{background:#fff3cd;color:#7a5c00;border:.5px solid #e8c84a}
+.cbadge.regular{background:var(--deep);color:#f0e4dc}
+.sold-overlay{position:absolute;inset:0;background:rgba(58,40,32,.55);display:flex;align-items:center;justify-content:center;z-index:4}
+.sold-overlay span{color:#f0e4dc;font-size:12px;font-weight:500}
+.card-body{padding:10px 12px}
+.card-name{font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:400;color:var(--deep);margin-bottom:3px}
+.card-caption{font-size:11px;color:#8a6a5e;line-height:1.4;margin-bottom:5px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.price-row{display:flex;align-items:center;gap:6px}
+.card-price{font-size:13px;font-weight:500;color:var(--gold)}
+.card-price-old{font-size:11px;color:var(--mauve);text-decoration:line-through}
+.card-actions{display:flex;gap:5px;margin-top:8px}
+.btn-cart{flex:1;background:var(--deep);color:#f0e4dc;border:none;border-radius:7px;padding:6px;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px;transition:opacity .15s}
+.btn-cart:hover{opacity:.85}
+.btn-cart:disabled{background:var(--mauve);cursor:default;opacity:1}
+.btn-fav{background:transparent;border:.5px solid var(--border);border-radius:7px;padding:6px 9px;cursor:pointer;color:var(--mauve);font-size:13px;transition:all .15s}
+.btn-fav:hover,.btn-fav.on{color:var(--red);border-color:var(--red)}
+.edit-inp{width:100%;border:.5px solid var(--border);border-radius:6px;padding:5px 8px;font-size:12px;color:var(--deep);background:var(--cream);outline:none;margin-bottom:4px}
+.edit-inp:focus{border-color:var(--gold)}
+.edit-ta{width:100%;border:.5px solid var(--border);border-radius:6px;padding:5px 8px;font-size:11px;color:var(--deep);background:var(--cream);outline:none;resize:none;line-height:1.5}
+.edit-ta:focus{border-color:var(--gold)}
+.elbl{font-size:9px;color:var(--mauve);letter-spacing:.07em;text-transform:uppercase;margin-bottom:2px;margin-top:5px}
+.stock-row{display:flex;align-items:center;gap:5px;margin-top:5px}
+.del-btn{width:100%;margin-top:6px;background:transparent;border:.5px solid #e8d5ce;border-radius:6px;padding:5px;font-size:11px;color:#b07070;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px}
+.del-btn:hover{background:#fff0f0}
+.add-card{display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px;border:1px dashed var(--mauve);border-radius:12px;color:var(--mauve);font-size:12px;cursor:pointer;padding:1.2rem 1rem;transition:all .2s;min-height:220px;background:transparent}
+.add-card:hover{background:var(--blush);border-color:var(--gold);color:var(--gold)}
+.add-card i{font-size:22px}
+.side-cart-header{display:flex;align-items:center;justify-content:space-between;padding:13px 14px;border-bottom:.5px solid var(--border)}
+.side-cart-title{font-family:'Cormorant Garamond',serif;font-size:18px;color:var(--deep)}
+.side-cart-close{background:transparent;border:none;cursor:pointer;color:var(--mauve);font-size:16px;padding:2px}
+.side-cart-body{flex:1;overflow-y:auto;padding:10px 14px}
+.cart-item{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:.5px solid var(--border)}
+.cart-item-name{flex:1;font-size:12px;line-height:1.4}
+.cart-item-price{font-size:12px;color:var(--gold);font-weight:500;min-width:55px;text-align:center}
+.cart-item-remove{background:transparent;border:none;color:var(--mauve);cursor:pointer;font-size:13px;padding:2px}
+.cart-item-remove:hover{color:var(--red)}
+.qty-ctrl{display:flex;align-items:center;gap:4px}
+.qty-btn{background:transparent;border:.5px solid var(--border);border-radius:4px;width:20px;height:20px;cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center}
+.qty-btn:hover{background:var(--blush)}
+.qty-val{font-size:12px;min-width:14px;text-align:center}
+.empty-cart{text-align:center;padding:1.5rem;color:var(--mauve);font-size:12px}
+.disc-code-row{display:flex;gap:6px;padding:10px 0 4px;border-top:.5px solid var(--border)}
+.disc-code-inp{flex:1;border:.5px solid var(--border);border-radius:20px;padding:5px 10px;font-size:12px;background:var(--cream);color:var(--deep);outline:none}
+.disc-code-inp:focus{border-color:var(--gold)}
+.disc-apply-btn{background:var(--gold);color:#fff;border:none;border-radius:20px;padding:5px 11px;font-size:11px;cursor:pointer}
+.disc-feedback{font-size:11px;min-height:14px;padding-bottom:4px}
+.disc-feedback.ok{color:#2d6a4f}.disc-feedback.err{color:var(--red)}
+.side-cart-footer{padding:12px 14px;border-top:.5px solid var(--border);background:#fff}
+.cart-row{display:flex;justify-content:space-between;font-size:12px;color:var(--mauve);margin-bottom:3px}
+.cart-row.discount{color:#2d6a4f;display:none}
+.cart-row.total-row{font-size:14px;font-weight:500;color:var(--deep);margin-bottom:10px;padding-top:5px;border-top:.5px solid var(--border)}
+.open-order-btn{width:100%;background:var(--deep);color:#f0e4dc;border:none;border-radius:8px;padding:10px;font-size:13px;cursor:pointer;transition:opacity .15s}
+.open-order-btn:hover{opacity:.85}
+.order-form{background:var(--blush);border:.5px solid var(--border);border-radius:10px;padding:12px;margin-top:10px;display:none}
+.order-form-title{font-family:'Cormorant Garamond',serif;font-size:16px;color:var(--deep);margin-bottom:8px}
+.form-group{margin-bottom:7px}
+.form-label{font-size:10px;color:var(--mauve);letter-spacing:.07em;text-transform:uppercase;margin-bottom:3px;display:block}
+.req{color:var(--red)}
+.form-inp{width:100%;border:.5px solid var(--border);border-radius:7px;padding:7px 10px;font-size:12px;color:var(--deep);background:#fff;outline:none}
+.form-inp:focus{border-color:var(--gold)}
+.form-inp.err-f{border-color:var(--red)}
+.form-row-2{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.order-btn-wa{width:100%;background:var(--wa);color:#fff;border:none;border-radius:7px;padding:10px;font-size:13px;cursor:pointer;margin-top:8px;display:flex;align-items:center;justify-content:center;gap:7px;transition:opacity .15s;font-weight:500}
+.order-btn-wa:hover{opacity:.88}
+.success-msg{background:#e8f5e9;border:.5px solid #a5d6a7;border-radius:8px;padding:10px;text-align:center;font-size:12px;color:#2d6a4f;margin-top:8px;display:none}
+.success-msg.show{display:block}
+.detail-wrap{max-width:900px;margin:0 auto;padding:1rem 1rem 2rem}
+.detail-back{display:inline-flex;align-items:center;gap:6px;background:transparent;border:none;cursor:pointer;color:var(--mauve);font-size:13px;margin-bottom:1rem;padding:4px 0}
+.detail-back:hover{color:var(--deep)}
+.detail-layout{display:flex;gap:1.5rem;flex-wrap:wrap}
+.detail-gallery{flex:1;min-width:280px}
+.detail-main-img{width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:12px;border:.5px solid var(--border);background:var(--blush);display:flex;align-items:center;justify-content:center;overflow:hidden;cursor:zoom-in;position:relative}
+.detail-main-img img{width:100%;height:100%;object-fit:cover;display:block}
+.detail-main-img video{width:100%;height:100%;object-fit:cover;display:block}
+.detail-main-placeholder{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;height:100%;color:var(--mauve);font-size:12px}
+.detail-main-placeholder i{font-size:32px}
+.detail-thumbs{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.detail-thumb{width:64px;height:64px;border-radius:8px;object-fit:cover;border:1.5px solid var(--border);cursor:pointer;transition:border-color .15s;flex-shrink:0;background:var(--blush);overflow:hidden}
+.detail-thumb.active{border-color:var(--gold)}
+.detail-thumb-add{width:64px;height:64px;border-radius:8px;border:1px dashed var(--mauve);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;color:var(--mauve);font-size:18px;background:transparent;position:relative;transition:all .15s}
+.detail-thumb-add:hover{border-color:var(--gold);color:var(--gold);background:var(--blush)}
+.detail-thumb-add input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.detail-info{flex:1;min-width:240px}
+.detail-badge{display:inline-block;background:var(--deep);color:#f0e4dc;font-size:10px;padding:3px 10px;border-radius:20px;letter-spacing:.1em;margin-bottom:10px}
+.detail-name{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:400;color:var(--deep);line-height:1.2;margin-bottom:8px}
+.detail-caption{font-size:13px;color:#8a6a5e;line-height:1.7;margin-bottom:14px}
+.detail-price-row{display:flex;align-items:center;gap:10px;margin-bottom:18px}
+.detail-price{font-size:22px;font-weight:500;color:var(--gold)}
+.detail-price-old{font-size:15px;color:var(--mauve);text-decoration:line-through}
+.detail-actions{display:flex;gap:10px;flex-wrap:wrap}
+.detail-btn-cart{flex:1;min-width:130px;background:var(--deep);color:#f0e4dc;border:none;border-radius:10px;padding:12px;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:opacity .15s}
+.detail-btn-cart:hover{opacity:.85}
+.detail-btn-cart:disabled{background:var(--mauve);cursor:default}
+.detail-btn-fav{background:transparent;border:.5px solid var(--border);border-radius:10px;padding:12px 16px;cursor:pointer;color:var(--mauve);font-size:16px;transition:all .15s}
+.detail-btn-fav:hover,.detail-btn-fav.on{color:var(--red);border-color:var(--red)}
+.detail-admin-edit{background:var(--blush);border:.5px solid var(--border);border-radius:10px;padding:14px;margin-top:16px}
+.detail-admin-title{font-size:11px;color:var(--gold);letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px}
+.lightbox{position:fixed;inset:0;background:rgba(0,0,0,.9);display:none;align-items:center;justify-content:center;z-index:200}
+.lightbox.show{display:flex}
+.lightbox img,.lightbox video{max-width:92vw;max-height:90vh;object-fit:contain;border-radius:8px}
+.lightbox-close{position:absolute;top:16px;right:16px;background:transparent;border:none;color:#fff;font-size:22px;cursor:pointer}
+.contact-sec{background:var(--blush);padding:1.5rem 1.4rem}
+.cgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:9px;max-width:520px;margin:0 auto}
+.ccard{background:#fff;border:.5px solid var(--border);border-radius:10px;padding:10px;text-align:center}
+.ccard i{font-size:18px;color:var(--gold);margin-bottom:3px;display:block}
+.clbl{font-size:9px;color:var(--mauve);letter-spacing:.1em;text-transform:uppercase;margin-bottom:2px}
+.cval{font-size:11px;color:var(--deep);font-weight:500;word-break:break-all}
+.cval a{color:var(--wa);text-decoration:none}
+.cval a:hover{text-decoration:underline}
+.wa-contact-btn{display:flex;align-items:center;justify-content:center;gap:7px;background:var(--wa);color:#fff;border:none;border-radius:10px;padding:11px;font-size:13px;cursor:pointer;text-decoration:none;font-weight:500;max-width:300px;margin:14px auto 0;transition:opacity .15s}
+.wa-contact-btn:hover{opacity:.88}
+.footer{background:var(--deep);padding:1.2rem;text-align:center}
+.fn{font-family:'Cormorant Garamond',serif;font-size:20px;letter-spacing:.2em;color:#f0e4dc;font-weight:300}
+.fp{font-size:10px;color:#8a6a5e;margin-top:4px;letter-spacing:.06em}
+.modal-wrap{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;z-index:300}
+.modal-wrap.show{display:flex}
+.modal{background:#fff;border-radius:14px;padding:1.6rem;width:270px;text-align:center;border:.5px solid var(--border)}
+.modal h3{font-family:'Cormorant Garamond',serif;font-size:20px;color:var(--deep);margin-bottom:5px}
+.modal p{font-size:11px;color:#8a6a5e;margin-bottom:12px}
+.modal input{width:100%;border:.5px solid var(--border);border-radius:8px;padding:8px 12px;font-size:14px;color:var(--deep);outline:none;text-align:center;letter-spacing:.15em;background:var(--cream)}
+.modal input:focus{border-color:var(--gold)}
+.mbtns{display:flex;gap:6px;margin-top:10px}
+.mbtn{flex:1;padding:8px;border-radius:7px;border:.5px solid var(--border);cursor:pointer;font-size:12px;background:transparent;color:var(--deep)}
+.mbtn.ok{background:var(--deep);color:#f0e4dc;border-color:var(--deep)}
+.merr{font-size:10px;color:var(--red);margin-top:5px;min-height:13px}
+@media(max-width:600px){
+  .side-cart{width:100vw;min-width:0;position:fixed;inset:0;top:50px;z-index:100;border:none}
+  .detail-layout{flex-direction:column}
+  .detail-name{font-size:22px}
+  .grid{grid-template-columns:repeat(auto-fill,minmax(145px,1fr))}
+}
+</style>
+</head>
+<body class="rtl">
+
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <button class="lightbox-close" onclick="closeLightbox()"><i class="ti ti-x"></i></button>
+  <div id="lightbox-content"></div>
+</div>
+
+<div class="modal-wrap" id="pwd-modal">
+  <div class="modal">
+    <h3>Admin</h3>
+    <p id="mprompt">أدخل كلمة المرور</p>
+    <input type="password" id="pwd-inp" maxlength="20" placeholder="••••••" />
+    <div class="merr" id="merr"></div>
+    <div class="mbtns">
+      <button class="mbtn" onclick="closeModal()" id="m-cancel">إلغاء</button>
+      <button class="mbtn ok" onclick="checkPwd()" id="m-enter">دخول</button>
+    </div>
+  </div>
+</div>
+
+<div class="lang-bar">
+  <div class="lang-btns">
+    <button class="lbtn" onclick="setLang('fr')">FR</button>
+    <button class="lbtn" onclick="setLang('en')">EN</button>
+    <button class="lbtn active" onclick="setLang('ar')">عر</button>
+  </div>
+  <div class="right-bar">
+    <button class="cart-btn" onclick="toggleCart()">
+      <i class="ti ti-shopping-bag"></i>
+      <span class="cart-badge" id="cart-count">0</span>
+    </button>
+    <button class="admin-btn" id="admin-btn" onclick="toggleAdmin()">
+      <i class="ti ti-lock"></i>
+      <span>Admin</span>
+    </button>
+  </div>
+</div>
+<div class="admin-strip" id="admin-strip"></div>
+
+<div id="view-list">
+  <div class="page-wrap">
+    <div class="main-content">
+      <div class="hero">
+        <div class="brand">FIFO</div>
+        <div class="tagline" id="t-tagline">أزياء نسائية — الجزائر</div>
+        <div class="sub" id="t-sub">أنيق · كلاسيكي · رقيق</div>
+      </div>
+      <div class="pay-bar">
+        <span><i class="ti ti-credit-card"></i><span id="t-pay1">الدفع بـ CCP</span></span>
+        <span><i class="ti ti-truck-delivery"></i><span id="t-pay2">توصيل عبر الجزائر</span></span>
+        <span><i class="ti ti-shield-check"></i><span id="t-pay3">طلب آمن</span></span>
+      </div>
+      <div class="toolbar">
+        <div class="search-wrap">
+          <i class="ti ti-search"></i>
+          <input class="search-inp" id="search-inp" placeholder="ابحثي..." oninput="renderGrid()" />
+        </div>
+        <div class="filter-btns" id="filter-btns"></div>
+        <select class="sort-sel" id="sort-sel" onchange="renderGrid()">
+          <option value="default">ترتيب</option>
+          <option value="asc">الأرخص</option>
+          <option value="desc">الأغلى</option>
+        </select>
+      </div>
+      <div class="discount-bar">
+        <span class="disc-title" id="t-disc-label">تخفيضات:</span>
+        <div class="disc-tags" id="disc-tags"></div>
+      </div>
+      <div class="sec-head">
+        <div class="sec-title" id="t-col">المجموعة</div>
+        <div class="sec-rule"></div>
+      </div>
+      <div class="grid" id="items-grid"></div>
+      <div class="contact-sec">
+        <div class="sec-title" id="t-contact">تواصلي معنا</div>
+        <div class="sec-rule"></div>
+        <div class="cgrid">
+          <div class="ccard"><i class="ti ti-phone"></i><div class="clbl" id="t-tel">هاتف</div><div class="cval">0655 47 67 49</div></div>
+          <div class="ccard"><i class="ti ti-mail"></i><div class="clbl">Email</div><div class="cval">healthey.eats.pdf@gmail.com</div></div>
+          <div class="ccard"><i class="ti ti-brand-whatsapp" style="color:var(--wa)"></i><div class="clbl">WhatsApp</div><div class="cval"><a href="https://wa.me/213655476749" target="_blank">0655 47 67 49</a></div></div>
+          <div class="ccard"><i class="ti ti-map-pin"></i><div class="clbl" id="t-loc-lbl">الموقع</div><div class="cval" id="t-loc-val">الجزائر</div></div>
+        </div>
+        <a class="wa-contact-btn" href="https://wa.me/213655476749" target="_blank">
+          <i class="ti ti-brand-whatsapp" style="font-size:17px"></i>
+          <span id="t-wa-contact">راسلينا على واتساب</span>
+        </a>
+      </div>
+      <div class="footer"><div class="fn">FIFO</div><div class="fp" id="t-footer">أزياء أنيقة · الجزائر · دفع CCP والتوصيل</div></div>
+    </div>
+    <div class="side-cart" id="side-cart">
+      <div class="side-cart-header">
+        <span class="side-cart-title" id="t-cart-title">سلة التسوق</span>
+        <button class="side-cart-close" onclick="toggleCart()"><i class="ti ti-x"></i></button>
+      </div>
+      <div class="side-cart-body" id="cart-body"></div>
+      <div class="side-cart-footer" id="cart-footer" style="display:none">
+        <div class="disc-code-row">
+          <input class="disc-code-inp" id="disc-code-inp" placeholder="كود تخفيض" />
+          <button class="disc-apply-btn" onclick="applyCode()" id="t-disc-apply">تطبيق</button>
+        </div>
+        <div class="disc-feedback" id="disc-feedback"></div>
+        <div class="cart-row"><span id="t-subtotal-lbl">المجموع الجزئي</span><span id="cart-subtotal"></span></div>
+        <div class="cart-row discount" id="discount-row"><span id="t-disc-row-lbl">التخفيض</span><span id="cart-discount-val"></span></div>
+        <div class="cart-row total-row"><span id="t-total-lbl">المجموع</span><span id="cart-total-val"></span></div>
+        <button class="open-order-btn" id="open-order-btn" onclick="toggleOrderForm()">اطلبي الآن</button>
+        <div class="order-form" id="order-form">
+          <div class="order-form-title" id="t-order-title">بيانات الطلب</div>
+          <div class="form-row-2">
+            <div class="form-group"><label class="form-label"><span id="lbl-fname">الاسم</span> <span class="req">*</span></label><input class="form-inp" id="f-fname" /></div>
+            <div class="form-group"><label class="form-label"><span id="lbl-lname">اللقب</span> <span class="req">*</span></label><input class="form-inp" id="f-lname" /></div>
+          </div>
+          <div class="form-group"><label class="form-label"><span id="lbl-phone">رقم الهاتف</span> <span class="req">*</span></label><input class="form-inp" id="f-phone" type="tel" /></div>
+          <div class="form-group"><label class="form-label"><span id="lbl-wilaya">الولاية</span> <span class="req">*</span></label><select class="form-inp" id="f-wilaya"></select></div>
+          <div class="form-group"><label class="form-label"><span id="lbl-addr">العنوان</span> <span class="req">*</span></label><input class="form-inp" id="f-addr" /></div>
+          <div class="form-group"><label class="form-label" id="lbl-note">ملاحظة (اختياري)</label><input class="form-inp" id="f-note" placeholder="اختياري" /></div>
+          <button class="order-btn-wa" onclick="sendWaOrder()">
+            <i class="ti ti-brand-whatsapp" style="font-size:16px"></i>
+            <span id="t-wa-send">إرسال الطلب عبر واتساب</span>
+          </button>
+          <div class="success-msg" id="success-msg"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="view-detail">
+  <div class="detail-wrap" id="detail-wrap"></div>
+</div>
+
+<script>
+const PASS="fifo2024",WA="213655476749",MAX_IMGS=5;
+let lang='ar',isAdmin=false,cart=[],favs=new Set(),activeFilter='all',cartOpen=false,orderOpen=false;
+let activeDiscount=0,appliedCode='',currentDetailIdx=-1,currentDetailImgIdx=0;
+const DISCOUNTS=[{code:"FIFO10",amount:500},{code:"FIFO20",amount:1000}];
+const PRESET=[500,1000,2000];
+const wilayas=["01 - أدرار","02 - الشلف","03 - الأغواط","04 - أم البواقي","05 - باتنة","06 - بجاية","07 - بسكرة","08 - بشار","09 - البليدة","10 - البويرة","11 - تمنراست","12 - تبسة","13 - تلمسان","14 - تيارت","15 - تيزي وزو","16 - الجزائر","17 - الجلفة","18 - جيجل","19 - سطيف","20 - سعيدة","21 - سكيكدة","22 - سيدي بلعباس","23 - عنابة","24 - قالمة","25 - قسنطينة","26 - المدية","27 - مستغانم","28 - المسيلة","29 - معسكر","30 - ورقلة","31 - وهران","32 - البيض","33 - إليزي","34 - برج بوعريريج","35 - بومرداس","36 - الطارف","37 - تندوف","38 - تيسمسيلت","39 - الوادي","40 - خنشلة","41 - سوق أهراس","42 - تيبازة","43 - ميلة","44 - عين الدفلى","45 - النعامة","46 - عين تيموشنت","47 - غرداية","48 - غليزان","49 - تيميمون","50 - برج باجي مختار","51 - أولاد جلال","52 - بني عباس","53 - عين صالح","54 - عين قزام","55 - تقرت","56 - جانت","57 - المغير","58 - المنيعة","59 - عين بسام","60 - السبت أولاد النمور","61 - برج منايل","62 - عين الترك","63 - أرزيو","64 - بئر الجير","65 - سيدي عبد الله","66 - مازونة","67 - الشريعة","68 - حمام بوحجر","69 - وادي سلي"];
+const T={ar:{tagline:"أزياء نسائية — الجزائر",sub:"أنيق · كلاسيكي · رقيق",pay1:"الدفع بـ CCP",pay2:"توصيل عبر الجزائر",pay3:"طلب آمن",col:"المجموعة",contact:"تواصلي معنا",tel:"هاتف",loc:"الجزائر",locLbl:"الموقع",footer:"أزياء أنيقة · الجزائر",addPhoto:"أضف صورة",adminOn:"وضع المشرف",enterPwd:"أدخل كلمة المرور",wrongPwd:"كلمة مرور خاطئة",addItem:"إضافة قطعة",delete:"حذف",nameLbl:"الاسم",priceLbl:"السعر (دج)",captionLbl:"الوصف",badgeLbl:"شارة",stockLbl:"متوفر",catLbl:"الفئة",dir:"rtl",search:"ابحثي...",cartTitle:"سلة التسوق",addCart:"أضف",soldOut:"نفد",subtotal:"المجموع الجزئي",discount:"التخفيض",total:"المجموع",orderBtn:"اطلبي الآن",orderTitle:"بيانات الطلب",fname:"الاسم",lname:"اللقب",phone:"رقم الهاتف",wilaya:"الولاية",addr:"العنوان",note:"ملاحظة (اختياري)",waSend:"إرسال الطلب عبر واتساب",waContact:"راسلينا على واتساب",success:"تم إرسال طلبك على واتساب!",sortDef:"ترتيب",sortAsc:"الأرخص",sortDesc:"الأغلى",cats:["الكل","فساتين","أطقم","بلوزات","عباءات"],wilayaPH:"اختاري الولاية *",discLabel:"تخفيضات:",discCodePH:"كود تخفيض",discApply:"تطبيق",discOk:"تم التخفيض",discErr:"كود خاطئ",preset:"-{n} دج",back:"رجوع",addMoreImg:"إضافة صور"},fr:{tagline:"Mode Féminine — Algérie",sub:"Élégant · Classique · Cute",pay1:"Paiement CCP",pay2:"Livraison Algérie",pay3:"Commande sécurisée",col:"La Collection",contact:"Nous contacter",tel:"Téléphone",loc:"Algérie",locLbl:"Localisation",footer:"Mode Élégante · Algérie",addPhoto:"Ajouter photo",adminOn:"Mode admin activé",enterPwd:"Entrez le mot de passe",wrongPwd:"Mot de passe incorrect",addItem:"Ajouter une pièce",delete:"Supprimer",nameLbl:"Nom",priceLbl:"Prix (DA)",captionLbl:"Description",badgeLbl:"Badge",stockLbl:"En stock",catLbl:"Catégorie",dir:"ltr",search:"Rechercher...",cartTitle:"Mon panier",addCart:"Ajouter",soldOut:"Épuisé",subtotal:"Sous-total",discount:"Réduction",total:"Total",orderBtn:"Commander",orderTitle:"Informations commande",fname:"Prénom",lname:"Nom",phone:"Téléphone",wilaya:"Wilaya",addr:"Adresse",note:"Note (optionnel)",waSend:"Commander via WhatsApp",waContact:"Contactez-nous sur WhatsApp",success:"Commande envoyée sur WhatsApp !",sortDef:"Trier",sortAsc:"Prix ↑",sortDesc:"Prix ↓",cats:["Tout","Robes","Ensembles","Blouses","Abayas"],wilayaPH:"Choisir wilaya *",discLabel:"Promotions:",discCodePH:"Code promo",discApply:"Appliquer",discOk:"Réduction appliquée",discErr:"Code invalide",preset:"-{n} DA",back:"Retour",addMoreImg:"Ajouter photos"},en:{tagline:"Women's Fashion — Algeria",sub:"Elegant · Classic · Cute",pay1:"CCP Payment",pay2:"Delivery Algeria",pay3:"Secure order",col:"The Collection",contact:"Contact us",tel:"Phone",loc:"Algeria",locLbl:"Location",footer:"Elegant Fashion · Algeria",addPhoto:"Add photo",adminOn:"Admin mode on",enterPwd:"Enter password",wrongPwd:"Wrong password",addItem:"Add item",delete:"Delete",nameLbl:"Name",priceLbl:"Price (DA)",captionLbl:"Description",badgeLbl:"Badge",stockLbl:"In stock",catLbl:"Category",dir:"ltr",search:"Search...",cartTitle:"My cart",addCart:"Add",soldOut:"Sold out",subtotal:"Subtotal",discount:"Discount",total:"Total",orderBtn:"Order now",orderTitle:"Order details",fname:"First name",lname:"Last name",phone:"Phone",wilaya:"Wilaya",addr:"Address",note:"Note (optional)",waSend:"Send order via WhatsApp",waContact:"Chat with us on WhatsApp",success:"Order sent on WhatsApp!",sortDef:"Sort",sortAsc:"Price ↑",sortDesc:"Price ↓",cats:["All","Dresses","Sets","Blouses","Abayas"],wilayaPH:"Select wilaya *",discLabel:"Promotions:",discCodePH:"Discount code",discApply:"Apply",discOk:"Discount applied",discErr:"Invalid code",preset:"-{n} DA",back:"Back",addMoreImg:"Add photos"}};
+let items=[{name:{ar:"فستان السهرة",fr:"Robe Soirée",en:"Evening Dress"},price:4500,badge:{ar:"جديد",fr:"Nouveau",en:"New"},caption:{ar:"قماش ساتان فاخر، متوفر بألوان متعددة",fr:"Satin luxueux, plusieurs couleurs",en:"Luxury satin, multiple colors"},cat:0,inStock:true,images:[]},{name:{ar:"طقم كاجوال",fr:"Ensemble Casual",en:"Casual Set"},price:3200,badge:{ar:"",fr:"",en:""},caption:{ar:"طقم مريح وعصري للإطلالة اليومية",fr:"Tenue décontractée et moderne",en:"Comfortable modern daily set"},cat:1,inStock:true,images:[]},{name:{ar:"بلوزة شيك",fr:"Blouse Chic",en:"Chic Blouse"},price:2800,badge:{ar:"رائج",fr:"Tendance",en:"Trending"},caption:{ar:"بلوزة أنيقة تناسب جميع المناسبات",fr:"Blouse élégante pour toutes occasions",en:"Elegant blouse for all occasions"},cat:2,inStock:true,images:[]},{name:{ar:"عباءة راقية",fr:"Abaya Élégante",en:"Elegant Abaya"},price:5500,badge:{ar:"حصري",fr:"Exclusif",en:"Exclusive"},caption:{ar:"عباءة فاخرة بتطريز يدوي",fr:"Abaya de luxe avec broderie",en:"Luxury abaya with hand embroidery"},cat:3,inStock:true,images:[]}];
+function tx(){return T[lang]}
+function setLang(l){lang=l;document.body.className=T[l].dir==='rtl'?'rtl':'ltr';document.documentElement.lang=l;document.querySelectorAll('.lbtn').forEach((b,i)=>{b.classList.toggle('active',['fr','en','ar'][i]===l)});applyLang();renderGrid();renderCartBody();if(currentDetailIdx>=0)renderDetail(currentDetailIdx);}
+function applyLang(){const t=tx();document.getElementById('t-tagline').textContent=t.tagline;document.getElementById('t-sub').textContent=t.sub;document.getElementById('t-pay1').textContent=t.pay1;document.getElementById('t-pay2').textContent=t.pay2;document.getElementById('t-pay3').textContent=t.pay3;document.getElementById('t-col').textContent=t.col;document.getElementById('t-contact').textContent=t.contact;document.getElementById('t-tel').textContent=t.tel;document.getElementById('t-loc-lbl').textContent=t.locLbl;document.getElementById('t-loc-val').textContent=t.loc;document.getElementById('t-footer').textContent=t.footer;document.getElementById('admin-strip').textContent=t.adminOn;document.getElementById('t-cart-title').textContent=t.cartTitle;document.getElementById('t-subtotal-lbl').textContent=t.subtotal;document.getElementById('t-disc-row-lbl').textContent=t.discount;document.getElementById('t-total-lbl').textContent=t.total;document.getElementById('open-order-btn').textContent=t.orderBtn;document.getElementById('t-order-title').textContent=t.orderTitle;document.getElementById('t-wa-send').textContent=t.waSend;document.getElementById('t-wa-contact').textContent=t.waContact;document.getElementById('search-inp').placeholder=t.search;document.getElementById('mprompt').textContent=t.enterPwd;document.getElementById('m-cancel').textContent=lang==='ar'?'إلغاء':'Annuler';document.getElementById('m-enter').textContent=lang==='ar'?'دخول':'Entrer';document.getElementById('t-disc-label').textContent=t.discLabel;document.getElementById('disc-code-inp').placeholder=t.discCodePH;document.getElementById('t-disc-apply').textContent=t.discApply;document.getElementById('lbl-fname').textContent=t.fname;document.getElementById('lbl-lname').textContent=t.lname;document.getElementById('lbl-phone').textContent=t.phone;document.getElementById('lbl-wilaya').textContent=t.wilaya;document.getElementById('lbl-addr').textContent=t.addr;document.getElementById('lbl-note').textContent=t.note;document.getElementById('f-note').placeholder=lang==='ar'?'اختياري':'Optionnel';const so=document.getElementById('sort-sel');so.options[0].text=t.sortDef;so.options[1].text=t.sortAsc;so.options[2].text=t.sortDesc;const wsel=document.getElementById('f-wilaya');wsel.innerHTML=`<option value="">${t.wilayaPH}</option>`;wilayas.forEach(w=>{const o=document.createElement('option');o.value=w;o.textContent=w;wsel.appendChild(o)});buildFilterBtns();buildDiscountTags();document.getElementById('side-cart').style.direction=t.dir;document.getElementById('cart-body').style.direction=t.dir;document.getElementById('cart-footer').style.direction=t.dir;}
+function buildFilterBtns(){const t=tx(),fb=document.getElementById('filter-btns');fb.innerHTML='';t.cats.forEach((c,i)=>{const b=document.createElement('button');b.className='fbtn';b.textContent=c;if((activeFilter==='all'&&i===0)||(activeFilter===i-1&&i>0))b.classList.add('active');b.onclick=()=>{activeFilter=i===0?'all':i-1;buildFilterBtns();renderGrid()};fb.appendChild(b);});}
+function buildDiscountTags(){const t=tx(),dt=document.getElementById('disc-tags');dt.innerHTML='';PRESET.forEach(amt=>{const b=document.createElement('button');b.className='disc-tag'+(activeDiscount===amt&&!appliedCode?' active':'');b.innerHTML=`<i class="ti ti-tag"></i>${t.preset.replace('{n}',amt.toLocaleString())}`;b.onclick=()=>{activeDiscount=(activeDiscount===amt&&!appliedCode)?0:amt;appliedCode='';buildDiscountTags();renderCartBody();renderGrid();};dt.appendChild(b);});}
+function applyCode(){const val=document.getElementById('disc-code-inp').value.trim().toUpperCase();const found=DISCOUNTS.find(d=>d.code===val);const fb=document.getElementById('disc-feedback');if(found){activeDiscount=found.amount;appliedCode=found.code;fb.textContent=tx().discOk;fb.className='disc-feedback ok';buildDiscountTags();renderCartBody();renderGrid();}else{fb.textContent=tx().discErr;fb.className='disc-feedback err';}setTimeout(()=>{fb.textContent='';fb.className='disc-feedback'},2500);}
+function discPrice(item){return activeDiscount>0&&item.price>activeDiscount?item.price-activeDiscount:item.price;}
+function renderGrid(){const t=tx(),grid=document.getElementById('items-grid');const q=document.getElementById('search-inp').value.toLowerCase();const sv=document.getElementById('sort-sel').value;let filtered=[...items];if(activeFilter!=='all')filtered=filtered.filter(it=>it.cat===activeFilter);if(q)filtered=filtered.filter(it=>it.name[lang].toLowerCase().includes(q)||it.caption[lang].toLowerCase().includes(q));if(sv==='asc')filtered.sort((a,b)=>a.price-b.price);if(sv==='desc')filtered.sort((a,b)=>b.price-a.price);grid.innerHTML='';if(!isAdmin&&filtered.length===0){const d=document.createElement('div');d.className='no-results';d.innerHTML=`<i class="ti ti-mood-sad" style="font-size:22px;color:var(--mauve);display:block;margin-bottom:5px"></i>${lang==='ar'?'لا توجد نتائج':'Aucun résultat'}`;grid.appendChild(d);return;}filtered.forEach(item=>{const idx=items.indexOf(item);const card=document.createElement('div');card.className='card';const isFav=favs.has(idx),inCart=cart.some(c=>c.idx===idx);const bTxt=item.badge[lang];const dp=discPrice(item),discounted=dp<item.price;const thumb=item.images[0];const mediaHtml=thumb?(thumb.type==='video'?`<video src="${thumb.url}" autoplay muted loop style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"></video>`:`<img class="card-thumb" src="${thumb.url}" style="display:block" alt="${item.name[lang]}" />`):`<div class="uhint"><i class="ti ti-camera-plus"></i><p>${t.addPhoto}</p></div>`;if(isAdmin){card.innerHTML=`<div class="card-media" onclick="openDetail(${idx})" style="cursor:pointer">${bTxt?`<span class="cbadge regular">${bTxt}</span>`:''}${mediaHtml}</div><div class="card-body" style="direction:${t.dir}"><div class="elbl">${t.nameLbl}</div><input class="edit-inp" value="${item.name[lang]}" oninput="items[${idx}].name['${lang}']=this.value" onclick="event.stopPropagation()" /><div class="elbl">${t.priceLbl}</div><input class="edit-inp" type="number" value="${item.price}" oninput="items[${idx}].price=parseInt(this.value)||0" onclick="event.stopPropagation()" /><div class="elbl">${t.badgeLbl}</div><input class="edit-inp" value="${item.badge[lang]}" oninput="items[${idx}].badge['${lang}']=this.value" onclick="event.stopPropagation()" /><div class="elbl">${t.catLbl}</div><select class="edit-inp" onchange="items[${idx}].cat=parseInt(this.value)" onclick="event.stopPropagation()">${t.cats.slice(1).map((c,ci)=>`<option value="${ci}"${item.cat===ci?' selected':''}>${c}</option>`).join('')}</select><div class="elbl">${t.captionLbl}</div><textarea class="edit-ta" rows="2" oninput="items[${idx}].caption['${lang}']=this.value" onclick="event.stopPropagation()">${item.caption[lang]}</textarea><div class="stock-row"><input type="checkbox" id="stk${idx}" ${item.inStock?'checked':''} onchange="items[${idx}].inStock=this.checked" style="accent-color:var(--gold)" /><label for="stk${idx}" style="font-size:11px;color:var(--mauve);cursor:pointer">${t.stockLbl}</label></div><button class="del-btn" onclick="deleteItem(${idx});event.stopPropagation()"><i class="ti ti-trash"></i>${t.delete}</button></div>`;}else{card.onclick=()=>openDetail(idx);card.innerHTML=`<div class="card-media">${discounted?`<span class="cbadge sale"><i class="ti ti-tag" style="font-size:9px"></i> -${activeDiscount.toLocaleString()} DA</span>`:(bTxt?`<span class="cbadge regular">${bTxt}</span>`:'')}${mediaHtml}${!item.inStock?`<div class="sold-overlay"><span>${t.soldOut}</span></div>`:''}</div><div class="card-body" style="direction:${t.dir}"><div class="card-name">${item.name[lang]}</div>${item.caption[lang]?`<div class="card-caption">${item.caption[lang]}</div>`:''}<div class="price-row"><span class="card-price">${dp.toLocaleString()} DA</span>${discounted?`<span class="card-price-old">${item.price.toLocaleString()}</span>`:''}</div><div class="card-actions"><button class="btn-cart" onclick="addToCart(${idx});event.stopPropagation()" ${!item.inStock||inCart?'disabled':''}><i class="ti ti-shopping-bag" style="font-size:12px"></i>${inCart?'✓':t.addCart}</button><button class="btn-fav${isFav?' on':''}" onclick="toggleFav(${idx});event.stopPropagation()"><i class="ti ti-heart"></i></button></div></div>`;}grid.appendChild(card);});if(isAdmin){const a=document.createElement('div');a.className='add-card';a.innerHTML=`<i class="ti ti-plus"></i><span>${t.addItem}</span>`;a.onclick=addItem;grid.appendChild(a);}}
+function openDetail(idx){currentDetailIdx=idx;currentDetailImgIdx=0;document.getElementById('view-list').style.display='none';document.getElementById('view-detail').style.display='block';window.scrollTo(0,0);renderDetail(idx);}
+function closeDetail(){currentDetailIdx=-1;document.getElementById('view-list').style.display='block';document.getElementById('view-detail').style.display='none';}
+function renderDetail(idx){const t=tx(),item=items[idx];const dp=discPrice(item),discounted=dp<item.price;const isFav=favs.has(idx),inCart=cart.some(c=>c.idx===idx);const imgs=item.images;const curImg=imgs[currentDetailImgIdx];let mainHtml='';if(curImg){if(curImg.type==='video')mainHtml=`<video src="${curImg.url}" autoplay muted loop controls style="width:100%;height:100%;object-fit:cover;display:block"></video>`;else mainHtml=`<img src="${curImg.url}" alt="${item.name[lang]}" style="width:100%;height:100%;object-fit:cover;display:block" onclick="openLightbox(${currentDetailImgIdx},${idx})" />`;}else{mainHtml=`<div class="detail-main-placeholder"><i class="ti ti-camera"></i><span>${t.addPhoto}</span></div>`;}let thumbsHtml='';imgs.forEach((img,i)=>{if(img.type==='video')thumbsHtml+=`<div class="detail-thumb${i===currentDetailImgIdx?' active':''}" onclick="selectImg(${i},${idx})" style="display:flex;align-items:center;justify-content:center;background:var(--deep)"><i class="ti ti-player-play" style="color:#f0e4dc;font-size:16px"></i></div>`;else thumbsHtml+=`<img class="detail-thumb${i===currentDetailImgIdx?' active':''}" src="${img.url}" onclick="selectImg(${i},${idx})" alt="" />`;});if(isAdmin&&imgs.length<MAX_IMGS){thumbsHtml+=`<div class="detail-thumb-add"><i class="ti ti-plus"></i><input type="file" accept="image/*,video/*" multiple onchange="addDetailImgs(event,${idx})" /></div>`;}let adminEditHtml='';if(isAdmin){adminEditHtml=`<div class="detail-admin-edit"><div class="detail-admin-title">✏️ ${t.adminOn}</div><div class="elbl">${t.nameLbl}</div><input class="edit-inp" value="${item.name[lang]}" oninput="items[${idx}].name['${lang}']=this.value;document.getElementById('d-name').textContent=this.value" /><div class="elbl">${t.priceLbl}</div><input class="edit-inp" type="number" value="${item.price}" oninput="items[${idx}].price=parseInt(this.value)||0;renderDetailPrices(${idx})" /><div class="elbl">${t.badgeLbl}</div><input class="edit-inp" value="${item.badge[lang]}" oninput="items[${idx}].badge['${lang}']=this.value" /><div class="elbl">${t.catLbl}</div><select class="edit-inp" onchange="items[${idx}].cat=parseInt(this.value)">${t.cats.slice(1).map((c,ci)=>`<option value="${ci}"${item.cat===ci?' selected':''}>${c}</option>`).join('')}</select><div class="elbl">${t.captionLbl}</div><textarea class="edit-ta" rows="3" oninput="items[${idx}].caption['${lang}']=this.value;document.getElementById('d-cap').textContent=this.value">${item.caption[lang]}</textarea><div class="stock-row"><input type="checkbox" id="dstk${idx}" ${item.inStock?'checked':''} onchange="items[${idx}].inStock=this.checked" style="accent-color:var(--gold)" /><label for="dstk${idx}" style="font-size:11px;color:var(--mauve);cursor:pointer">${t.stockLbl}</label></div><button class="del-btn" onclick="deleteItem(${idx});closeDetail()" style="margin-top:8px"><i class="ti ti-trash"></i>${t.delete}</button></div>`;}document.getElementById('detail-wrap').innerHTML=`<button class="detail-back" onclick="closeDetail()"><i class="ti ti-arrow-${t.dir==='rtl'?'right':'left'}"></i>${t.back}</button><div class="detail-layout" style="direction:${t.dir}"><div class="detail-gallery"><div class="detail-main-img" style="aspect-ratio:3/4">${mainHtml}</div><div class="detail-thumbs">${thumbsHtml}</div></div><div class="detail-info">${item.badge[lang]?`<span class="detail-badge">${item.badge[lang]}</span>`:''}<div class="detail-name" id="d-name">${item.name[lang]}</div><div class="detail-caption" id="d-cap">${item.caption[lang]}</div><div class="detail-price-row" id="d-price-row"><span class="detail-price" id="d-price">${dp.toLocaleString()} DA</span>${discounted?`<span class="detail-price-old" id="d-price-old">${item.price.toLocaleString()} DA</span>`:''}</div>${!item.inStock?`<div style="color:var(--red);font-size:12px;margin-bottom:12px">${t.soldOut}</div>`:''}<div class="detail-actions"><button class="detail-btn-cart" onclick="addToCart(${idx})" ${!item.inStock||inCart?'disabled':''}><i class="ti ti-shopping-bag"></i>${inCart?'✓':t.addCart}</button><button class="detail-btn-fav${isFav?' on':''}" onclick="toggleFav(${idx});renderDetail(${idx})"><i class="ti ti-heart"></i></button></div>${adminEditHtml}</div></div>`;}
+function renderDetailPrices(idx){const item=items[idx],dp=discPrice(item),discounted=dp<item.price;const pr=document.getElementById('d-price');if(pr)pr.textContent=dp.toLocaleString()+' DA';const po=document.getElementById('d-price-old');if(discounted&&!po){const row=document.getElementById('d-price-row');if(row){const s=document.createElement('span');s.id='d-price-old';s.className='detail-price-old';s.textContent=item.price.toLocaleString()+' DA';row.appendChild(s);}}else if(!discounted&&po)po.remove();}
+function selectImg(i,idx){currentDetailImgIdx=i;renderDetail(idx);}
+function addDetailImgs(e,idx){const files=Array.from(e.target.files);const remaining=MAX_IMGS-items[idx].images.length;files.slice(0,remaining).forEach(f=>{const url=URL.createObjectURL(f);items[idx].images.push({url,type:f.type.startsWith('video/')?'video':'image'});});currentDetailImgIdx=items[idx].images.length-1;renderDetail(idx);renderGrid();}
+function openLightbox(i,idx){const img=items[idx].images[i];if(!img)return;const lb=document.getElementById('lightbox'),lbc=document.getElementById('lightbox-content');lbc.innerHTML=img.type==='video'?`<video src="${img.url}" autoplay controls style="max-width:92vw;max-height:90vh"></video>`:`<img src="${img.url}" alt="" />`;lb.classList.add('show');}
+function closeLightbox(){document.getElementById('lightbox').classList.remove('show');}
+function addToCart(idx){const e=cart.find(c=>c.idx===idx);if(e)e.qty++;else cart.push({idx,qty:1});updateBadge();renderGrid();renderCartBody();if(currentDetailIdx>=0)renderDetail(currentDetailIdx);if(!cartOpen)toggleCart();}
+function removeFromCart(idx){cart=cart.filter(c=>c.idx!==idx);updateBadge();renderGrid();renderCartBody();}
+function changeQty(idx,d){const c=cart.find(x=>x.idx===idx);if(!c)return;c.qty+=d;if(c.qty<=0){removeFromCart(idx);return;}updateBadge();renderCartBody();}
+function updateBadge(){document.getElementById('cart-count').textContent=cart.reduce((s,c)=>s+c.qty,0);}
+function toggleFav(idx){if(favs.has(idx))favs.delete(idx);else favs.add(idx);renderGrid();}
+function toggleCart(){cartOpen=!cartOpen;document.getElementById('side-cart').classList.toggle('open',cartOpen);if(cartOpen)renderCartBody();}
+function toggleOrderForm(){orderOpen=!orderOpen;document.getElementById('order-form').style.display=orderOpen?'block':'none';document.getElementById('success-msg').classList.remove('show');}
+function renderCartBody(){const t=tx(),body=document.getElementById('cart-body'),footer=document.getElementById('cart-footer');body.innerHTML='';body.style.direction=t.dir;if(cart.length===0){body.innerHTML=`<div class="empty-cart"><i class="ti ti-shopping-bag" style="font-size:22px;color:var(--mauve);display:block;margin-bottom:5px"></i>${lang==='ar'?'السلة فارغة':'Panier vide'}</div>`;footer.style.display='none';return;}let subtotal=0;cart.forEach(c=>{const item=items[c.idx];if(!item)return;const dp=discPrice(item),sub=dp*c.qty;subtotal+=sub;const row=document.createElement('div');row.className='cart-item';row.style.direction=t.dir;row.innerHTML=`<div class="cart-item-name">${item.name[lang]}<br><small style="color:var(--mauve)">${dp.toLocaleString()} DA</small></div><div class="qty-ctrl"><button class="qty-btn" onclick="changeQty(${c.idx},-1)">−</button><span class="qty-val">${c.qty}</span><button class="qty-btn" onclick="changeQty(${c.idx},1)">+</button></div><div class="cart-item-price">${sub.toLocaleString()}</div><button class="cart-item-remove" onclick="removeFromCart(${c.idx})"><i class="ti ti-x"></i></button>`;body.appendChild(row);});footer.style.display='block';footer.style.direction=t.dir;const origTotal=cart.reduce((s,c)=>{const it=items[c.idx];return it?s+it.price*c.qty:s},0);document.getElementById('cart-subtotal').textContent=origTotal.toLocaleString()+' DA';const drow=document.getElementById('discount-row'),discAmt=origTotal-subtotal;if(discAmt>0){drow.style.display='flex';document.getElementById('cart-discount-val').textContent='-'+discAmt.toLocaleString()+' DA';}else drow.style.display='none';document.getElementById('cart-total-val').textContent=subtotal.toLocaleString()+' DA';}
+function sendWaOrder(){const fname=document.getElementById('f-fname').value.trim();const lname=document.getElementById('f-lname').value.trim();const phone=document.getElementById('f-phone').value.trim();const wilaya=document.getElementById('f-wilaya').value;const addr=document.getElementById('f-addr').value.trim();let valid=true;[['f-fname',fname],['f-lname',lname],['f-phone',phone],['f-addr',addr]].forEach(([id,v])=>{const el=document.getElementById(id);if(!v){el.classList.add('err-f');valid=false;}else el.classList.remove('err-f');});const wel=document.getElementById('f-wilaya');if(!wilaya){wel.classList.add('err-f');valid=false;}else wel.classList.remove('err-f');if(!valid)return;let msg=`🛍️ طلب جديد — FIFO\n\n👤 ${fname} ${lname}\n📞 ${phone}\n📍 ${wilaya}\n🏠 ${addr}\n`;const note=document.getElementById('f-note').value.trim();if(note)msg+=`📝 ${note}\n`;msg+=`\n--- المنتجات ---\n`;let total=0;cart.forEach(c=>{const it=items[c.idx];if(!it)return;const dp=discPrice(it),sub=dp*c.qty;total+=sub;msg+=`• ${it.name['ar']} x${c.qty} = ${sub.toLocaleString()} DA\n`;});const orig=cart.reduce((s,c)=>{const it=items[c.idx];return it?s+it.price*c.qty:s},0);if(activeDiscount>0)msg+=`🏷️ تخفيض: -${(orig-total).toLocaleString()} DA\n`;msg+=`\n💰 المجموع: ${total.toLocaleString()} DA`;window.open(`https://wa.me/${WA}?text=${encodeURIComponent(msg)}`,'_blank');document.getElementById('success-msg').textContent=tx().success;document.getElementById('success-msg').classList.add('show');setTimeout(()=>{cart=[];updateBadge();renderGrid();renderCartBody();document.getElementById('order-form').style.display='none';document.getElementById('success-msg').classList.remove('show');orderOpen=false;},3500);}
+function deleteItem(idx){items.splice(idx,1);cart=cart.filter(c=>c.idx!==idx);updateBadge();renderGrid();renderCartBody();}
+function addItem(){items.push({name:{ar:"قطعة جديدة",fr:"Nouvelle pièce",en:"New item"},price:0,badge:{ar:"",fr:"",en:""},caption:{ar:"",fr:"",en:""},cat:0,inStock:true,images:[]});renderGrid();}
+function toggleAdmin(){if(isAdmin){isAdmin=false;updateAdminUI();renderGrid();if(currentDetailIdx>=0)renderDetail(currentDetailIdx);}else{document.getElementById('merr').textContent='';document.getElementById('pwd-inp').value='';document.getElementById('pwd-modal').classList.add('show');setTimeout(()=>document.getElementById('pwd-inp').focus(),100);}}
+function checkPwd(){if(document.getElementById('pwd-inp').value===PASS){isAdmin=true;closeModal();updateAdminUI();renderGrid();if(currentDetailIdx>=0)renderDetail(currentDetailIdx);}else{document.getElementById('merr').textContent=tx().wrongPwd;document.getElementById('pwd-inp').value='';}}
+function closeModal(){document.getElementById('pwd-modal').classList.remove('show');}
+document.getElementById('pwd-inp').addEventListener('keydown',e=>{if(e.key==='Enter')checkPwd();});
+function updateAdminUI(){const btn=document.getElementById('admin-btn'),strip=document.getElementById('admin-strip');if(isAdmin){btn.classList.add('on');btn.innerHTML=`<i class="ti ti-shield-check"></i><span>Admin ✓</span>`;strip.classList.add('show');}else{btn.classList.remove('on');btn.innerHTML=`<i class="ti ti-lock"></i><span>Admin</span>`;strip.classList.remove('show');}}
+applyLang();renderGrid();
+</script>
+</body>
+</html>
